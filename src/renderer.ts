@@ -137,7 +137,7 @@ export class Renderer {
 
     // Time
     const edgeMode = this.config.bounceMode === 'edge';
-    const cycleDuration = (edgeMode ? 3200 : 1600) / this.config.speed;
+    const cycleDuration = (edgeMode ? 3200 : 1600) / (this.config.speed + 10);
     let elapsed = 0;
     if (this.playing) {
       elapsed = (timestamp - this.startTime) / 1000;
@@ -155,7 +155,7 @@ export class Renderer {
         const edgePhase = phase * 2;
         const t = ((edgePhase / Math.PI) % 2 + 2) % 2;
         const tri = 2 * Math.abs(t - 1) - 1;
-        dist = tri * Math.abs(tri) * radius;
+        dist = tri * radius;
 
         const sinVal2 = Math.sin(edgePhase);
         const bounceDir: 'up' | 'down' = sinVal2 >= 0 ? 'up' : 'down';
@@ -293,7 +293,7 @@ export class Renderer {
     ctx.fill();
 
     // --- Trails (soft glow) ---
-    const trailLife = Math.max(0.1, 0.7 / (this.config.speed / 40));
+    const trailLife = Math.max(0.1, 0.7 / ((this.config.speed + 10) / 40));
     this.trails = this.trails.filter(t => {
       const age = (timestamp - t.time) / 1000;
       if (age > trailLife) return false;
