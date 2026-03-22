@@ -39,20 +39,27 @@ canvas {
   backdrop-filter: blur(30px) saturate(1.4);
   -webkit-backdrop-filter: blur(30px) saturate(1.4);
   border-top: 1px solid var(--border);
-  padding: 14px 28px;
+  padding: 18px 22px;
   display: flex;
   align-items: stretch;
-  gap: 24px;
+  gap: 20px;
   z-index: 10;
   font-family: 'JetBrains Mono', monospace;
   font-size: 11px;
   letter-spacing: 0.04em;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.controls::-webkit-scrollbar {
+  display: none;
 }
 
 .control-group {
   display: flex;
   flex-direction: column;
   gap: 5px;
+  flex-shrink: 0;
 }
 
 .control-group > *:not(label:first-child) {
@@ -73,16 +80,36 @@ canvas {
   background: var(--border);
   align-self: stretch;
   margin: 4px 0;
+  flex-shrink: 0;
+}
+
+.select-wrap {
+  position: relative;
+  display: inline-flex;
+}
+
+.select-wrap::after {
+  content: '';
+  position: absolute;
+  right: 9px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 10px;
+  height: 6px;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' fill='none'%3E%3Cpath d='M1 1l4 4 4-4' stroke='%235a5a6e' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat center;
+  pointer-events: none;
 }
 
 .control-group select {
+  -webkit-appearance: none;
+  appearance: none;
   background: rgba(255, 255, 255, 0.04);
   border: 1px solid var(--border);
   color: var(--text);
   font-family: 'JetBrains Mono', monospace;
   font-size: 13px;
   border-radius: 6px;
-  padding: 5px 10px;
+  padding: 5px 26px 5px 10px;
   outline: none;
   cursor: pointer;
   transition: border-color 0.2s, box-shadow 0.2s;
@@ -204,7 +231,7 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .title-area h1 {
-  font-size: 15px;
+  font-size: 20px;
   font-weight: 400;
   letter-spacing: 0.14em;
   color: var(--text);
@@ -390,3 +417,157 @@ input[type="range"]::-moz-range-thumb {
 }
 
 .spacer { flex: 1; }
+
+/* ─── Sheet toggle & bottom sheet (hidden on desktop) ─── */
+
+.sheet-toggle,
+.sheet-backdrop,
+.bottom-sheet {
+  display: none;
+}
+
+/* ─── Mobile ─── */
+
+@media (max-width: 640px) {
+  .desktop-only {
+    display: none !important;
+  }
+
+  .controls {
+    padding: 16px;
+    gap: 16px;
+    overflow: hidden;
+  }
+
+  .play-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .play-btn svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .control-group select {
+    font-size: 13px;
+  }
+
+  .controls > .control-group .switch-label {
+    font-size: 10px;
+  }
+
+  .sheet-toggle {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    cursor: pointer;
+    flex-shrink: 0;
+    align-self: center;
+    margin-left: auto;
+    padding: 4px;
+    transition: color 0.25s;
+  }
+
+  .sheet-toggle:hover {
+    color: var(--text);
+  }
+
+  .sheet-toggle.open {
+    color: var(--accent);
+  }
+
+  .sheet-toggle svg {
+    width: 16px;
+    height: 16px;
+    transition: transform 0.25s;
+  }
+
+  .sheet-toggle.open svg {
+    transform: rotate(180deg);
+  }
+
+  .sheet-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    z-index: 20;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+
+  .sheet-backdrop.visible {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  .bottom-sheet {
+    display: block;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: var(--bg-panel);
+    backdrop-filter: blur(30px) saturate(1.4);
+    -webkit-backdrop-filter: blur(30px) saturate(1.4);
+    border-top: 1px solid var(--border);
+    border-radius: 16px 16px 0 0;
+    z-index: 30;
+    transform: translateY(100%);
+    transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    padding: 0 24px;
+    padding-bottom: max(24px, env(safe-area-inset-bottom));
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 11px;
+    letter-spacing: 0.04em;
+  }
+
+  .bottom-sheet.open {
+    transform: translateY(0);
+  }
+
+  .sheet-handle {
+    padding: 12px 0;
+    display: flex;
+    justify-content: center;
+    cursor: pointer;
+  }
+
+  .sheet-handle-bar {
+    width: 36px;
+    height: 4px;
+    border-radius: 2px;
+    background: rgba(255, 255, 255, 0.15);
+  }
+
+  .sheet-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    padding-bottom: 4px;
+  }
+
+  .sheet-content .row {
+    gap: 12px;
+  }
+
+  .sheet-content input[type="range"] {
+    flex: 1;
+    width: auto;
+  }
+
+  .sheet-divider {
+    height: 1px;
+    background: var(--border);
+  }
+
+  .sheet-row {
+    display: flex;
+    gap: 16px;
+  }
+}
