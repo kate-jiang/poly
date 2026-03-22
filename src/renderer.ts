@@ -46,6 +46,7 @@ export class Renderer {
   private h = 0;
   private mobile = false;
   private bgGradient: CanvasGradient | null = null;
+  private frameCount = 0;
 
   constructor(canvas: HTMLCanvasElement, config: AppConfig) {
     this.canvas = canvas;
@@ -110,6 +111,7 @@ export class Renderer {
 
   start(onBounce: (nodeIndex: number, config: AppConfig) => void): void {
     const draw = (timestamp: number) => {
+      this.frameCount++;
       this.animFrameId = requestAnimationFrame(draw);
       this.render(timestamp, onBounce);
     };
@@ -189,7 +191,7 @@ export class Renderer {
       const proximity = Math.abs(dist) / radius;
       frames.push({ x, y, dist, angle, proximity });
 
-      if (!this.mobile && this.playing && Math.random() > 0.5) {
+      if (!this.mobile && this.playing && this.frameCount % 2 === 0) {
         this.trails.push({ x, y, time: timestamp, color: node.color });
       }
     });
@@ -290,13 +292,13 @@ export class Renderer {
     ctx.fillStyle = 'rgba(255, 255, 255, 0.2)';
     ctx.fill();
 
-    // --- Trails (soft radial-gradient dots) ---
-    const trailLife = Math.max(0.15, 1.2 / (this.config.speed / 20));
+    // --- Trails (soft glow) ---
+    const trailLife = Math.max(0.1, 0.7 / (this.config.speed / 40));
     this.trails = this.trails.filter(t => {
       const age = (timestamp - t.time) / 1000;
       if (age > trailLife) return false;
-      const alpha = (1 - age / trailLife);
-      const size = 3 + 3 * alpha;
+      const alpha = 1 - age / trailLife;
+      const size = 4 + 3 * alpha;
       const tg = ctx.createRadialGradient(t.x, t.y, 0, t.x, t.y, size);
       tg.addColorStop(0, hsla(t.color, alpha * 0.35));
       tg.addColorStop(1, 'transparent');
