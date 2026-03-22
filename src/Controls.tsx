@@ -38,7 +38,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
         <div className="control-divider desktop-only" />
 
         <div className="control-group desktop-only">
-          <label>Notes</label>
+          <label>Nodes</label>
           <div className="row">
             <input
               type="range"
@@ -52,7 +52,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
         </div>
 
         <div className="control-group desktop-only">
-          <label>Tempo</label>
+          <label>Speed</label>
           <div className="row">
             <input
               type="range"
@@ -62,6 +62,20 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
               onChange={e => onConfigChange({ speed: parseInt(e.target.value) })}
             />
             <span className="val">{config.speed}%</span>
+          </div>
+        </div>
+
+        <div className="control-group desktop-only">
+          <label>Reverb</label>
+          <div className="row">
+            <input
+              type="range"
+              min={0}
+              max={100}
+              value={config.reverb}
+              onChange={e => onConfigChange({ reverb: parseInt(e.target.value) })}
+            />
+            <span className="val">{config.reverb}%</span>
           </div>
         </div>
 
@@ -110,7 +124,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
         <div className="control-divider desktop-only" />
 
         <div className="control-group">
-          <label>Mode</label>
+          <label>Start Position</label>
           <div className="row">
             <span className="switch-label">Center</span>
             <label className="switch">
@@ -147,7 +161,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
         </div>
         <div className="sheet-content">
           <div className="control-group">
-            <label>Notes</label>
+            <label>Nodes</label>
             <div className="row">
               <input
                 type="range"
@@ -161,7 +175,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
           </div>
 
           <div className="control-group">
-            <label>Tempo</label>
+            <label>Speed</label>
             <div className="row">
               <input
                 type="range"
@@ -171,6 +185,20 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
                 onChange={e => onConfigChange({ speed: parseInt(e.target.value) })}
               />
               <span className="val">{config.speed}%</span>
+            </div>
+          </div>
+
+          <div className="control-group">
+            <label>Reverb</label>
+            <div className="row">
+              <input
+                type="range"
+                min={0}
+                max={100}
+                value={config.reverb}
+                onChange={e => onConfigChange({ reverb: parseInt(e.target.value) })}
+              />
+              <span className="val">{config.reverb}%</span>
             </div>
           </div>
 
@@ -218,7 +246,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
             </div>
 
             <div className="control-group">
-              <label>Mode</label>
+              <label>Start Position</label>
               <div className="row">
                 <span className="switch-label">Center</span>
                 <label className="switch">

@@ -30,6 +30,7 @@ export interface AppConfig {
   scale: ScaleName;
   root: NoteName;
   bounceMode: BounceMode;
+  reverb: number;
 }
 
 export interface AppState {

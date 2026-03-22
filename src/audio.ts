@@ -34,6 +34,12 @@ export class AudioEngine {
     } catch {}
   }
 
+  setReverb(wet: number): void {
+    if (this.reverb) {
+      this.reverb.wet.value = wet;
+    }
+  }
+
   dispose(): void {
     this.synths.forEach(s => s.dispose());
     this.synths = [];

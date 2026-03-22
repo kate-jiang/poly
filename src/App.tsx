@@ -13,6 +13,7 @@ const DEFAULT_CONFIG: AppConfig = {
   scale: 'pentatonic',
   root: 'C',
   bounceMode: 'center',
+  reverb: 40,
 };
 
 export function App() {
@@ -48,6 +49,9 @@ export function App() {
     setConfig(prev => ({ ...prev, ...update }));
     if (update.nodeCount !== undefined) {
       audioRef.current?.rebuild(update.nodeCount);
+    }
+    if (update.reverb !== undefined) {
+      audioRef.current?.setReverb(update.reverb / 133);
     }
   }, []);
 
