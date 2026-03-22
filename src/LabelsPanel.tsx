@@ -12,7 +12,8 @@ export function LabelsPanel({ config }: LabelsPanelProps) {
     typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
   );
 
-  const { nodeCount, scale, root, octave } = config;
+  const { nodeCount, scale, root } = config;
+  const octave = 4;
   const colors = getNodeColors(nodeCount);
 
   const labels = [];
@@ -32,8 +33,8 @@ export function LabelsPanel({ config }: LabelsPanelProps) {
       <div className={`node-labels${open ? ' visible' : ''}`}>
         {labels.map((l, i) => (
           <div key={i} className="node-label">
-            <span style={{ color: l.color }}>{l.note}</span>
-            <span className="node-dot" style={{ background: l.color }} />
+            <span style={{ color: `hsl(${l.color})` }}>{l.note}</span>
+            <span className="node-dot" style={{ background: `hsl(${l.color})` }} />
           </div>
         ))}
       </div>

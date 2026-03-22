@@ -1,10 +1,12 @@
 import type { AppConfig, PolyNode, Ripple, Trail } from './types';
 import { getNodeColors } from './utils';
 
-function hsla(hslStr: string, alpha: number): string {
-  const match = hslStr.match(/hsl\(([^)]+)\)/);
-  if (!match) return hslStr;
-  return `hsla(${match[1]}, ${alpha})`;
+function hsla(hslInner: string, alpha: number): string {
+  return `hsla(${hslInner}, ${alpha})`;
+}
+
+function hsl(hslInner: string): string {
+  return `hsl(${hslInner})`;
 }
 
 interface CircleGeometry {
@@ -40,6 +42,10 @@ export class Renderer {
   private playing = false;
   private startTime = 0;
   private config: AppConfig;
+  private w = 0;
+  private h = 0;
+  private mobile = false;
+  private bgGradient: CanvasGradient | null = null;
 
   constructor(canvas: HTMLCanvasElement, config: AppConfig) {
     this.canvas = canvas;
@@ -50,12 +56,26 @@ export class Renderer {
   }
 
   resize(): void {
-    const dpr = window.devicePixelRatio || 1;
-    this.canvas.width = window.innerWidth * dpr;
-    this.canvas.height = window.innerHeight * dpr;
-    this.canvas.style.width = window.innerWidth + 'px';
-    this.canvas.style.height = window.innerHeight + 'px';
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.mobile = Math.min(w, h) < 600;
+    this.canvas.width = w * dpr;
+    this.canvas.height = h * dpr;
+    this.canvas.style.width = w + 'px';
+    this.canvas.style.height = h + 'px';
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    this.w = w;
+    this.h = h;
+    this.bgGradient = this.buildBgGradient(w, h);
+  }
+
+  private buildBgGradient(w: number, h: number): CanvasGradient {
+    const grad = this.ctx.createRadialGradient(w * 0.5, h * 0.5, 0, w * 0.5, h * 0.5, w * 0.7);
+    grad.addColorStop(0, '#101018');
+    grad.addColorStop(0.5, '#08080e');
+    grad.addColorStop(1, '#030306');
+    return grad;
   }
 
   updateConfig(config: AppConfig): void {
@@ -102,15 +122,11 @@ export class Renderer {
 
   private render(timestamp: number, onBounce: (nodeIndex: number, config: AppConfig) => void): void {
     const ctx = this.ctx;
-    const W = window.innerWidth;
-    const H = window.innerHeight;
+    const W = this.w;
+    const H = this.h;
 
     // --- Background ---
-    const grad = ctx.createRadialGradient(W * 0.5, H * 0.5, 0, W * 0.5, H * 0.5, W * 0.7);
-    grad.addColorStop(0, '#101018');
-    grad.addColorStop(0.5, '#08080e');
-    grad.addColorStop(1, '#030306');
-    ctx.fillStyle = grad;
+    ctx.fillStyle = this.bgGradient!;
     ctx.fillRect(0, 0, W, H);
 
     const circle = computeCircle(W, H);
@@ -145,7 +161,9 @@ export class Renderer {
           const edgeDist = dist > 0 ? radius : -radius;
           const bx = center.x + Math.cos(angle) * edgeDist;
           const by = center.y + Math.sin(angle) * edgeDist;
-          this.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
+          if (this.ripples.length < (this.mobile ? 30 : 100)) {
+            this.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
+          }
           onBounce(i, this.config);
         }
         node.lastBounceDir = bounceDir;
@@ -158,7 +176,9 @@ export class Renderer {
         if (this.playing && node.lastBounceDir && bounceDir !== node.lastBounceDir) {
           const bx = center.x + Math.cos(angle) * radius * (bounce < 0.15 ? 0 : bounce);
           const by = center.y + Math.sin(angle) * radius * (bounce < 0.15 ? 0 : bounce);
-          this.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
+          if (this.ripples.length < (this.mobile ? 30 : 100)) {
+            this.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
+          }
           onBounce(i, this.config);
         }
         node.lastBounceDir = bounceDir;
@@ -169,7 +189,7 @@ export class Renderer {
       const proximity = Math.abs(dist) / radius;
       frames.push({ x, y, dist, angle, proximity });
 
-      if (this.playing && Math.random() > 0.5) {
+      if (!this.mobile && this.playing && Math.random() > 0.5) {
         this.trails.push({ x, y, time: timestamp, color: node.color });
       }
     });
@@ -177,35 +197,55 @@ export class Renderer {
     // === Phase 2: Draw layers back-to-front ===
 
     // --- Track lines (subtle radial guides) ---
-    this.nodes.forEach((node, i) => {
-      const { angle } = frames[i];
+    if (this.mobile) {
+      // Batched single path — uniform color, no per-node gradients
       ctx.beginPath();
-      if (edgeMode) {
-        const x1 = center.x - Math.cos(angle) * radius;
-        const y1 = center.y - Math.sin(angle) * radius;
-        const x2 = center.x + Math.cos(angle) * radius;
-        const y2 = center.y + Math.sin(angle) * radius;
-        const tg = ctx.createLinearGradient(x1, y1, x2, y2);
-        tg.addColorStop(0, hsla(node.color, 0.06));
-        tg.addColorStop(0.45, 'transparent');
-        tg.addColorStop(0.55, 'transparent');
-        tg.addColorStop(1, hsla(node.color, 0.06));
-        ctx.moveTo(x1, y1);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = tg;
-      } else {
-        const x2 = center.x + Math.cos(angle) * radius;
-        const y2 = center.y + Math.sin(angle) * radius;
-        const tg = ctx.createLinearGradient(center.x, center.y, x2, y2);
-        tg.addColorStop(0, 'transparent');
-        tg.addColorStop(1, hsla(node.color, 0.06));
-        ctx.moveTo(center.x, center.y);
-        ctx.lineTo(x2, y2);
-        ctx.strokeStyle = tg;
+      for (let i = 0; i < n; i++) {
+        const { angle } = frames[i];
+        const cosA = Math.cos(angle);
+        const sinA = Math.sin(angle);
+        if (edgeMode) {
+          ctx.moveTo(center.x - cosA * radius, center.y - sinA * radius);
+          ctx.lineTo(center.x + cosA * radius, center.y + sinA * radius);
+        } else {
+          ctx.moveTo(center.x, center.y);
+          ctx.lineTo(center.x + cosA * radius, center.y + sinA * radius);
+        }
       }
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
       ctx.lineWidth = 0.5;
       ctx.stroke();
-    });
+    } else {
+      this.nodes.forEach((node, i) => {
+        const { angle } = frames[i];
+        ctx.beginPath();
+        if (edgeMode) {
+          const x1 = center.x - Math.cos(angle) * radius;
+          const y1 = center.y - Math.sin(angle) * radius;
+          const x2 = center.x + Math.cos(angle) * radius;
+          const y2 = center.y + Math.sin(angle) * radius;
+          const tg = ctx.createLinearGradient(x1, y1, x2, y2);
+          tg.addColorStop(0, hsla(node.color, 0.06));
+          tg.addColorStop(0.45, 'transparent');
+          tg.addColorStop(0.55, 'transparent');
+          tg.addColorStop(1, hsla(node.color, 0.06));
+          ctx.moveTo(x1, y1);
+          ctx.lineTo(x2, y2);
+          ctx.strokeStyle = tg;
+        } else {
+          const x2 = center.x + Math.cos(angle) * radius;
+          const y2 = center.y + Math.sin(angle) * radius;
+          const tg = ctx.createLinearGradient(center.x, center.y, x2, y2);
+          tg.addColorStop(0, 'transparent');
+          tg.addColorStop(1, hsla(node.color, 0.06));
+          ctx.moveTo(center.x, center.y);
+          ctx.lineTo(x2, y2);
+          ctx.strokeStyle = tg;
+        }
+        ctx.lineWidth = 0.5;
+        ctx.stroke();
+      });
+    }
 
     // --- Circle outline with soft glow ---
     ctx.beginPath();
@@ -294,20 +334,22 @@ export class Renderer {
       return true;
     });
 
-    // --- Node glow layer ---
-    this.nodes.forEach((node, i) => {
-      const { x, y, proximity } = frames[i];
-      const fade = proximity * proximity;
-      const glowSize = 22 + proximity * 18;
-      const gg = ctx.createRadialGradient(x, y, 0, x, y, glowSize);
-      gg.addColorStop(0, hsla(node.color, 0.08 * fade));
-      gg.addColorStop(0.5, hsla(node.color, 0.03 * fade));
-      gg.addColorStop(1, 'transparent');
-      ctx.beginPath();
-      ctx.arc(x, y, glowSize, 0, Math.PI * 2);
-      ctx.fillStyle = gg;
-      ctx.fill();
-    });
+    // --- Node glow layer (skip on mobile — expensive radial gradients) ---
+    if (!this.mobile) {
+      this.nodes.forEach((node, i) => {
+        const { x, y, proximity } = frames[i];
+        const fade = proximity * proximity;
+        const glowSize = 22 + proximity * 18;
+        const gg = ctx.createRadialGradient(x, y, 0, x, y, glowSize);
+        gg.addColorStop(0, hsla(node.color, 0.08 * fade));
+        gg.addColorStop(0.5, hsla(node.color, 0.03 * fade));
+        gg.addColorStop(1, 'transparent');
+        ctx.beginPath();
+        ctx.arc(x, y, glowSize, 0, Math.PI * 2);
+        ctx.fillStyle = gg;
+        ctx.fill();
+      });
+    }
 
     // --- Lines from center to node ---
     this.nodes.forEach((node, i) => {
@@ -327,8 +369,7 @@ export class Renderer {
     // --- Node circles ---
     this.nodes.forEach((node, i) => {
       const { x, y, proximity } = frames[i];
-      const mobile = Math.min(W, H) < 600;
-      const nodeSize = mobile ? 3.5 + proximity * 3 : 5 + proximity * 4;
+      const nodeSize = this.mobile ? 3.5 + proximity * 3 : 5 + proximity * 4;
 
       // Outer ring
       ctx.beginPath();
@@ -345,7 +386,7 @@ export class Renderer {
         x, y, nodeSize
       );
       nf.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
-      nf.addColorStop(0.35, node.color);
+      nf.addColorStop(0.35, hsl(node.color));
       nf.addColorStop(1, hsla(node.color, 0.85));
       ctx.fillStyle = nf;
       ctx.fill();

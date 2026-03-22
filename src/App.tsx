@@ -28,12 +28,16 @@ export function App() {
     audio.triggerNote(nodeIndex, note);
   }, []);
 
-  const handlePlay = useCallback(() => {
+  const handlePlay = useCallback(async () => {
     if (!playing) {
-      if (!audioRef.current) audioRef.current = new AudioEngine();
-      audioRef.current.init();
-      Tone.start();
-      audioRef.current.rebuild(config.nodeCount);
+      try {
+        if (!audioRef.current) audioRef.current = new AudioEngine();
+        audioRef.current.init();
+        await Tone.start();
+        audioRef.current.rebuild(config.nodeCount);
+      } catch (e) {
+        console.warn('Audio init failed:', e);
+      }
       setPlaying(true);
     } else {
       setPlaying(false);
