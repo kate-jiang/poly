@@ -214,7 +214,7 @@ export class Renderer {
           ctx.lineTo(center.x + cosA * radius, center.y + sinA * radius);
         }
       }
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.03)';
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.045)';
       ctx.lineWidth = 0.5;
       ctx.stroke();
     } else {
@@ -227,10 +227,10 @@ export class Renderer {
           const x2 = center.x + Math.cos(angle) * radius;
           const y2 = center.y + Math.sin(angle) * radius;
           const tg = ctx.createLinearGradient(x1, y1, x2, y2);
-          tg.addColorStop(0, hsla(node.color, 0.06));
+          tg.addColorStop(0, hsla(node.color, 0.09));
           tg.addColorStop(0.45, 'transparent');
           tg.addColorStop(0.55, 'transparent');
-          tg.addColorStop(1, hsla(node.color, 0.06));
+          tg.addColorStop(1, hsla(node.color, 0.09));
           ctx.moveTo(x1, y1);
           ctx.lineTo(x2, y2);
           ctx.strokeStyle = tg;
@@ -239,7 +239,7 @@ export class Renderer {
           const y2 = center.y + Math.sin(angle) * radius;
           const tg = ctx.createLinearGradient(center.x, center.y, x2, y2);
           tg.addColorStop(0, 'transparent');
-          tg.addColorStop(1, hsla(node.color, 0.06));
+          tg.addColorStop(1, hsla(node.color, 0.09));
           ctx.moveTo(center.x, center.y);
           ctx.lineTo(x2, y2);
           ctx.strokeStyle = tg;
@@ -322,7 +322,7 @@ export class Renderer {
       ctx.lineWidth = 1.5 * alpha;
       ctx.stroke();
 
-      if (edgeMode) {
+      if (!this.mobile || edgeMode) {
         const glowSize = 10 + age * 50;
         const gg = ctx.createRadialGradient(r.x, r.y, 0, r.x, r.y, glowSize);
         gg.addColorStop(0, hsla(r.color, alpha * 0.12));
@@ -387,8 +387,7 @@ export class Renderer {
         x - nodeSize * 0.25, y - nodeSize * 0.25, 0,
         x, y, nodeSize
       );
-      nf.addColorStop(0, 'rgba(255, 255, 255, 0.5)');
-      nf.addColorStop(0.35, hsl(node.color));
+      nf.addColorStop(0, hsl(node.color));
       nf.addColorStop(1, hsla(node.color, 0.85));
       ctx.fillStyle = nf;
       ctx.fill();
