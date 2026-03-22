@@ -12,9 +12,11 @@ interface CircleGeometry {
 }
 
 function computeCircle(w: number, h: number): CircleGeometry {
+  const short = Math.min(w, h);
+  const scale = short < 600 ? 0.4 : 0.28;
   return {
     center: { x: w * 0.5, y: h * 0.5 },
-    radius: Math.min(w, h) * 0.28,
+    radius: short * scale,
   };
 }
 
@@ -286,7 +288,8 @@ export class Renderer {
     // --- Node circles ---
     state.nodes.forEach((node, i) => {
       const { x, y, proximity } = frames[i];
-      const nodeSize = 5 + proximity * 4;
+      const mobile = Math.min(W, H) < 600;
+      const nodeSize = mobile ? 3.5 + proximity * 3 : 5 + proximity * 4;
 
       // Outer ring
       ctx.beginPath();
