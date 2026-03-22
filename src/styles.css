@@ -220,6 +220,38 @@ input[type="range"]::-moz-range-thumb {
   height: 18px;
 }
 
+/* ─── Randomize button ─── */
+
+.random-btn {
+  height: 32px;
+  padding: 0 14px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--text);
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 13px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.random-btn:hover {
+  border-color: var(--border-hover);
+}
+
+.random-btn:active {
+  transform: scale(0.98);
+}
+
+.random-btn svg {
+  width: 14px;
+  height: 14px;
+}
+
 /* ─── Title ─── */
 
 .title-area {
@@ -599,5 +631,20 @@ input[type="range"]::-moz-range-thumb {
   .sheet-row {
     display: flex;
     gap: 16px;
+  }
+
+  .sheet-random {
+    width: 100%;
+    height: 36px;
+    padding: 0 16px;
+    border-radius: 8px;
+    font-size: 13px;
+    gap: 8px;
+    justify-content: center;
+  }
+
+  .sheet-random svg {
+    width: 16px;
+    height: 16px;
   }
 }

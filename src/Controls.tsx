@@ -1,6 +1,20 @@
 import { useState } from 'react';
 import type { AppConfig, ScaleName, NoteName } from './types';
 
+const SCALES: ScaleName[] = ['pentatonic', 'ionian', 'lydian', 'blues', 'whole_tone', 'chromatic'];
+const ROOTS: NoteName[] = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+
+function randomizeConfig(): Partial<AppConfig> {
+  return {
+    nodeCount: Math.floor(Math.random() * 49) + 2,
+    speed: Math.floor(Math.random() * 100) + 1,
+    reverb: Math.floor(Math.random() * 101),
+    scale: SCALES[Math.floor(Math.random() * SCALES.length)],
+    root: ROOTS[Math.floor(Math.random() * ROOTS.length)],
+    bounceMode: Math.random() > 0.5 ? 'edge' : 'center',
+  };
+}
+
 interface ControlsProps {
   config: AppConfig;
   playing: boolean;
@@ -15,7 +29,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
     <>
       <div className="controls">
         <button
-          className={`play-btn${playing ? ' playing' : ''}`}
+          className="play-btn"
           title="Play / Reset"
           onClick={onPlay}
         >
@@ -137,6 +151,18 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
             </label>
             <span className="switch-label">Edge</span>
           </div>
+        </div>
+
+        <div className="control-divider desktop-only" />
+
+        <div className="control-group desktop-only">
+          <label>crazy style</label>
+          <button
+            className="random-btn"
+            onClick={() => onConfigChange(randomizeConfig())}
+          >
+            Randomize
+          </button>
         </div>
 
         <button
@@ -264,6 +290,15 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
                 <span className="val">{config.reverb}%</span>
               </div>
             </div>
+          </div>
+
+          <div className="sheet-row">
+            <button
+              className="random-btn sheet-random"
+              onClick={() => onConfigChange(randomizeConfig())}
+            >
+              Randomize
+            </button>
           </div>
         </div>
       </div>
