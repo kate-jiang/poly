@@ -548,7 +548,6 @@ input[type="range"]::-moz-range-thumb {
   .sheet-content {
     display: flex;
     flex-direction: column;
-    gap: 20px;
     padding-bottom: 4px;
   }
 
@@ -559,6 +558,37 @@ input[type="range"]::-moz-range-thumb {
   .sheet-content input[type="range"] {
     flex: 1;
     width: auto;
+  }
+
+  .sheet-content input[type="range"]::-webkit-slider-thumb {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sheet-content input[type="range"]::-moz-range-thumb {
+    width: 18px;
+    height: 18px;
+  }
+
+  .sheet-content .touch-target {
+    padding: 16px 0;
+  }
+
+  .sheet-content .sheet-controls {
+    padding-bottom: 16px;
+  }
+
+  .sheet-toggle {
+    min-height: 44px;
+    min-width: 44px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .sheet-handle {
+    padding: 16px 0;
+    min-height: 48px;
   }
 
   .sheet-divider {

@@ -160,51 +160,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
           <div className="sheet-handle-bar" />
         </div>
         <div className="sheet-content">
-          <div className="control-group">
-            <label>Nodes</label>
-            <div className="row">
-              <input
-                type="range"
-                min={2}
-                max={40}
-                value={config.nodeCount}
-                onChange={e => onConfigChange({ nodeCount: parseInt(e.target.value) })}
-              />
-              <span className="val">{config.nodeCount}</span>
-            </div>
-          </div>
-
-          <div className="control-group">
-            <label>Speed</label>
-            <div className="row">
-              <input
-                type="range"
-                min={1}
-                max={100}
-                value={config.speed}
-                onChange={e => onConfigChange({ speed: parseInt(e.target.value) })}
-              />
-              <span className="val">{config.speed}%</span>
-            </div>
-          </div>
-
-          <div className="control-group">
-            <label>Reverb</label>
-            <div className="row">
-              <input
-                type="range"
-                min={0}
-                max={100}
-                value={config.reverb}
-                onChange={e => onConfigChange({ reverb: parseInt(e.target.value) })}
-              />
-              <span className="val">{config.reverb}%</span>
-            </div>
-          </div>
-
-          <div className="sheet-divider" />
-
-          <div className="sheet-row">
+          <div className="sheet-row sheet-controls">
             <div className="control-group">
               <label>Scale</label>
               <div className="select-wrap">
@@ -258,6 +214,54 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
                   <span className="switch-slider" />
                 </label>
                 <span className="switch-label">Edge</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="control-group">
+            <label>Nodes</label>
+            <div className="touch-target">
+              <div className="row">
+                <input
+                  type="range"
+                  min={2}
+                  max={40}
+                  value={config.nodeCount}
+                  onChange={e => onConfigChange({ nodeCount: parseInt(e.target.value) })}
+                />
+                <span className="val">{config.nodeCount}</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="control-group">
+            <label>Speed</label>
+            <div className="touch-target">
+              <div className="row">
+                <input
+                  type="range"
+                  min={1}
+                  max={100}
+                  value={config.speed}
+                  onChange={e => onConfigChange({ speed: parseInt(e.target.value) })}
+                />
+                <span className="val">{config.speed}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="control-group">
+            <label>Reverb</label>
+            <div className="touch-target">
+              <div className="row">
+                <input
+                  type="range"
+                  min={0}
+                  max={100}
+                  value={config.reverb}
+                  onChange={e => onConfigChange({ reverb: parseInt(e.target.value) })}
+                />
+                <span className="val">{config.reverb}%</span>
               </div>
             </div>
           </div>
