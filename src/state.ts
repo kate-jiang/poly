@@ -33,7 +33,7 @@ export const state: AppState = {
   ripples: [],
   trails: [],
   config: {
-    nodeCount: 40,
+    nodeCount: 30,
     speed: 40,
     scale: 'pentatonic',
     root: 'C',

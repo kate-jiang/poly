@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Polyrhythm Visualizer</title>
+<title>POLY</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
@@ -12,7 +12,7 @@
 <body>
 
 <div class="title-area">
-  <h1>POLYRHYTHM</h1>
+  <h1>POLY</h1>
   <p>visualizer</p>
 </div>
 
@@ -34,18 +34,18 @@
   <div class="control-divider"></div>
 
   <div class="control-group">
-    <label>Nodes</label>
+    <label>Notes</label>
     <div class="row">
-      <input type="range" id="nodeCount" min="2" max="40" value="40">
-      <span class="val" id="nodeCountVal">40</span>
+      <input type="range" id="nodeCount" min="2" max="40" value="30">
+      <span class="val" id="nodeCountVal">30</span>
     </div>
   </div>
 
   <div class="control-group">
-    <label>Speed</label>
+    <label>Tempo</label>
     <div class="row">
-      <input type="range" id="speed" min="1" max="100" value="40">
-      <span class="val" id="speedVal">40%</span>
+      <input type="range" id="speed" min="1" max="100" value="50">
+      <span class="val" id="speedVal">50%</span>
     </div>
   </div>
 
@@ -55,13 +55,11 @@
     <label>Scale</label>
     <select id="scaleSelect">
       <option value="pentatonic">Pentatonic</option>
-      <option value="major">Major</option>
-      <option value="minor">Minor</option>
-      <option value="dorian">Dorian</option>
-      <option value="mixolydian">Mixolydian</option>
+      <option value="ionian">Ionian</option>
+      <option value="lydian">Lydian</option>
       <option value="blues">Blues</option>
-      <option value="chromatic">Chromatic</option>
       <option value="whole_tone">Whole Tone</option>
+      <option value="chromatic">Chromatic</option>
     </select>
   </div>
 

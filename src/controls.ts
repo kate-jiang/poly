@@ -18,7 +18,7 @@ function updateLabels(state: AppState): void {
     const note = getNoteForNode(i, nodeCount, SCALES[scale], root, octave);
     const div = document.createElement('div');
     div.className = 'node-label';
-    div.innerHTML = `<span style="color:${colors[i]}">${note} \u00d7${i + 2}</span><span class="node-dot" style="background:${colors[i]}"></span>`;
+    div.innerHTML = `<span style="color:${colors[i]}">${note}</span><span class="node-dot" style="background:${colors[i]}"></span>`;
     container.appendChild(div);
   }
 }
@@ -84,6 +84,11 @@ export function bindControls(state: AppState, audio: AudioEngine, _renderer: Ren
   // Labels panel toggle
   const labelsToggle = $('labelsToggle') as HTMLButtonElement;
   const nodeLabels = $('nodeLabels');
+  const isDesktop = window.matchMedia('(min-width: 768px)').matches;
+  if (isDesktop) {
+    nodeLabels.classList.add('visible');
+    labelsToggle.classList.add('open');
+  }
   labelsToggle.addEventListener('click', () => {
     const isOpen = nodeLabels.classList.toggle('visible');
     labelsToggle.classList.toggle('open', isOpen);
