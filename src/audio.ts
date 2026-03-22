@@ -4,12 +4,19 @@ export class AudioEngine {
   private synths: Tone.Synth[] = [];
   private reverb: Tone.Reverb | null = null;
   private compressor: Tone.Compressor | null = null;
+  private limiter: Tone.Limiter | null = null;
   private ready = false;
 
   init(): void {
     if (this.ready) return;
-    this.reverb = new Tone.Reverb({ decay: 2.5, wet: 0.3 }).toDestination();
-    this.compressor = new Tone.Compressor(-20, 4).connect(this.reverb);
+    this.limiter = new Tone.Limiter(-2).toDestination();
+    this.reverb = new Tone.Reverb({ decay: 2.5, wet: 0.3 }).connect(this.limiter);
+    this.compressor = new Tone.Compressor({
+      threshold: -24,
+      ratio: 8,
+      attack: 0.003,
+      release: 0.15,
+    }).connect(this.reverb);
     this.ready = true;
   }
 
@@ -31,7 +38,9 @@ export class AudioEngine {
     if (!this.ready || index >= this.synths.length) return;
     try {
       this.synths[index].triggerAttackRelease(note, '16n');
-    } catch {}
+    } catch (e) {
+      console.warn('triggerNote:', e);
+    }
   }
 
   setReverb(wet: number): void {
@@ -45,8 +54,10 @@ export class AudioEngine {
     this.synths = [];
     this.compressor?.dispose();
     this.reverb?.dispose();
+    this.limiter?.dispose();
     this.compressor = null;
     this.reverb = null;
+    this.limiter = null;
     this.ready = false;
   }
 }
