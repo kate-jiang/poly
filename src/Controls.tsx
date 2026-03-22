@@ -43,7 +43,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
             <input
               type="range"
               min={2}
-              max={40}
+              max={50}
               value={config.nodeCount}
               onChange={e => onConfigChange({ nodeCount: parseInt(e.target.value) })}
             />
@@ -225,7 +225,7 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
                 <input
                   type="range"
                   min={2}
-                  max={40}
+                  max={50}
                   value={config.nodeCount}
                   onChange={e => onConfigChange({ nodeCount: parseInt(e.target.value) })}
                 />
