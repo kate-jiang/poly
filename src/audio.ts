@@ -25,10 +25,12 @@ export class AudioEngine {
     this.synths.forEach(s => s.dispose());
     this.synths = [];
 
+    const vol = -10 * Math.log10(count);
     for (let i = 0; i < count; i++) {
       const s = new Tone.Synth({
         oscillator: { type: 'triangle' },
         envelope: { attack: 0.005, decay: 0.25, sustain: 0, release: 0.4 },
+        volume: vol,
       }).connect(this.compressor);
       this.synths.push(s);
     }
