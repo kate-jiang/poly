@@ -6,9 +6,15 @@ export class AudioEngine {
   private compressor: Tone.Compressor | null = null;
   private limiter: Tone.Limiter | null = null;
   private ready = false;
+  private static contextConfigured = false;
 
   init(): void {
     if (this.ready) return;
+    if (!AudioEngine.contextConfigured) {
+      const rawCtx = new AudioContext({ latencyHint: 'playback', sampleRate: 44100 });
+      Tone.setContext(new Tone.Context(rawCtx));
+      AudioEngine.contextConfigured = true;
+    }
     this.limiter = new Tone.Limiter(-2).toDestination();
     this.reverb = new Tone.Reverb({ decay: 2.5, wet: 0.3 }).connect(this.limiter);
     this.compressor = new Tone.Compressor({
@@ -39,7 +45,8 @@ export class AudioEngine {
   triggerNote(index: number, note: string): void {
     if (!this.ready || index >= this.synths.length) return;
     try {
-      this.synths[index].triggerAttackRelease(note, '16n');
+      const now = Tone.now() + 0.02;
+      this.synths[index].triggerAttackRelease(note, '16n', now);
     } catch (e) {
       console.warn('triggerNote:', e);
     }
