@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Polyrhythm Visualizer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="./styles.css">
+</head>
+<body>
+
+<div class="title-area">
+  <h1>POLYRHYTHM</h1>
+  <p>visualizer</p>
+</div>
+
+<div class="labels-wrapper">
+  <button class="labels-toggle" id="labelsToggle">Notes <span class="chevron">&#9660;</span></button>
+  <div class="node-labels" id="nodeLabels"></div>
+</div>
+
+<canvas id="canvas"></canvas>
+
+<div class="controls">
+  <button class="play-btn" id="playBtn" title="Play / Reset">
+    <svg id="playIcon" viewBox="0 0 24 24" fill="currentColor"><polygon points="6,3 20,12 6,21"/></svg>
+    <svg id="resetIcon" viewBox="0 0 24 24" fill="currentColor" style="display:none">
+      <path d="M12 4V1L8 5l4 4V6c3.31 0 6 2.69 6 6s-2.69 6-6 6-6-2.69-6-6H4c0 4.42 3.58 8 8 8s8-3.58 8-8-3.58-8-8-8z"/>
+    </svg>
+  </button>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Nodes</label>
+    <div class="row">
+      <input type="range" id="nodeCount" min="2" max="40" value="40">
+      <span class="val" id="nodeCountVal">40</span>
+    </div>
+  </div>
+
+  <div class="control-group">
+    <label>Speed</label>
+    <div class="row">
+      <input type="range" id="speed" min="1" max="100" value="40">
+      <span class="val" id="speedVal">40%</span>
+    </div>
+  </div>
+
+  <div class="control-divider"></div>
+
+  <div class="control-group">
+    <label>Scale</label>
+    <select id="scaleSelect">
+      <option value="pentatonic">Pentatonic</option>
+      <option value="major">Major</option>
+      <option value="minor">Minor</option>
+      <option value="dorian">Dorian</option>
+      <option value="mixolydian">Mixolydian</option>
+      <option value="blues">Blues</option>
+      <option value="chromatic">Chromatic</option>
+      <option value="whole_tone">Whole Tone</option>
+    </select>
+  </div>
+
+  <div class="control-group">
+    <label>Key</label>
+    <select id="rootSelect">
+      <option value="C">C</option>
+      <option value="C#">C#</option>
+      <option value="D">D</option>
+      <option value="Eb">Eb</option>
+      <option value="E">E</option>
+      <option value="F">F</option>
+      <option value="F#">F#</option>
+      <option value="G">G</option>
+      <option value="Ab">Ab</option>
+      <option value="A">A</option>
+      <option value="Bb">Bb</option>
+      <option value="B">B</option>
+    </select>
+  </div>
+  <div class="control-divider"></div>
+  <div class="control-group">
+    <label>Mode</label>
+    <div class="row">
+      <span class="switch-label">Center</span>
+      <label class="switch">
+        <input type="checkbox" id="bounceMode">
+        <span class="switch-slider"></span>
+      </label>
+      <span class="switch-label">Edge</span>
+    </div>
+  </div>
+</div>
+
+<script type="module" src="./main.ts"></script>
+</body>
+</html>
