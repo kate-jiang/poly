@@ -1,4 +1,5 @@
-import type { AppState } from './types';
+import type { AppConfig, PolyNode, Ripple, Trail } from './types';
+import { getNodeColors } from './utils';
 
 function hsla(hslStr: string, alpha: number): string {
   const match = hslStr.match(/hsl\(([^)]+)\)/);
@@ -33,9 +34,17 @@ export class Renderer {
   private ctx: CanvasRenderingContext2D;
   private animFrameId = 0;
 
-  constructor(canvas: HTMLCanvasElement) {
+  private nodes: PolyNode[] = [];
+  private ripples: Ripple[] = [];
+  private trails: Trail[] = [];
+  private playing = false;
+  private startTime = 0;
+  private config: AppConfig;
+
+  constructor(canvas: HTMLCanvasElement, config: AppConfig) {
     this.canvas = canvas;
     this.ctx = canvas.getContext('2d')!;
+    this.config = config;
     window.addEventListener('resize', () => this.resize());
     this.resize();
   }
@@ -49,10 +58,40 @@ export class Renderer {
     this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
   }
 
-  start(state: AppState, onBounce: (nodeIndex: number) => void): void {
+  updateConfig(config: AppConfig): void {
+    this.config = config;
+  }
+
+  setPlaying(playing: boolean): void {
+    this.playing = playing;
+    if (playing) {
+      this.startTime = performance.now();
+      this.nodes.forEach(n => { n.lastBounceDir = null; });
+    } else {
+      this.startTime = 0;
+    }
+  }
+
+  rebuildNodes(count: number): void {
+    const colors = getNodeColors(count);
+    this.nodes = [];
+    for (let i = 0; i < count; i++) {
+      this.nodes.push({
+        index: i,
+        beats: i + 2,
+        color: colors[i],
+        progress: 0,
+        lastBounceDir: null,
+      });
+    }
+    this.ripples = [];
+    this.trails = [];
+  }
+
+  start(onBounce: (nodeIndex: number, config: AppConfig) => void): void {
     const draw = (timestamp: number) => {
       this.animFrameId = requestAnimationFrame(draw);
-      this.render(timestamp, state, onBounce);
+      this.render(timestamp, onBounce);
     };
     this.animFrameId = requestAnimationFrame(draw);
   }
@@ -61,7 +100,7 @@ export class Renderer {
     cancelAnimationFrame(this.animFrameId);
   }
 
-  private render(timestamp: number, state: AppState, onBounce: (nodeIndex: number) => void): void {
+  private render(timestamp: number, onBounce: (nodeIndex: number, config: AppConfig) => void): void {
     const ctx = this.ctx;
     const W = window.innerWidth;
     const H = window.innerHeight;
@@ -76,19 +115,19 @@ export class Renderer {
 
     const circle = computeCircle(W, H);
     const { center, radius } = circle;
-    const n = state.nodes.length;
+    const n = this.nodes.length;
 
     // Time
-    const edgeMode = state.config.bounceMode === 'edge';
-    const cycleDuration = (edgeMode ? 3200 : 1600) / state.config.speed;
+    const edgeMode = this.config.bounceMode === 'edge';
+    const cycleDuration = (edgeMode ? 3200 : 1600) / this.config.speed;
     let elapsed = 0;
-    if (state.playing) {
-      elapsed = (timestamp - state.startTime) / 1000;
+    if (this.playing) {
+      elapsed = (timestamp - this.startTime) / 1000;
     }
 
     // === Phase 1: Compute all node positions & handle bounce detection ===
     const frames: NodeFrame[] = [];
-    state.nodes.forEach((node, i) => {
+    this.nodes.forEach((node, i) => {
       const angle = (i / n) * Math.PI * 2;
       const freq = node.beats;
       const phase = (elapsed / cycleDuration) * freq * Math.PI;
@@ -102,12 +141,12 @@ export class Renderer {
 
         const sinVal2 = Math.sin(edgePhase);
         const bounceDir: 'up' | 'down' = sinVal2 >= 0 ? 'up' : 'down';
-        if (state.playing && node.lastBounceDir && bounceDir !== node.lastBounceDir) {
+        if (this.playing && node.lastBounceDir && bounceDir !== node.lastBounceDir) {
           const edgeDist = dist > 0 ? radius : -radius;
           const bx = center.x + Math.cos(angle) * edgeDist;
           const by = center.y + Math.sin(angle) * edgeDist;
-          state.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
-          onBounce(i);
+          this.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
+          onBounce(i, this.config);
         }
         node.lastBounceDir = bounceDir;
       } else {
@@ -116,11 +155,11 @@ export class Renderer {
         dist = bounce * radius;
 
         const bounceDir: 'up' | 'down' = sinVal >= 0 ? 'up' : 'down';
-        if (state.playing && node.lastBounceDir && bounceDir !== node.lastBounceDir) {
+        if (this.playing && node.lastBounceDir && bounceDir !== node.lastBounceDir) {
           const bx = center.x + Math.cos(angle) * radius * (bounce < 0.15 ? 0 : bounce);
           const by = center.y + Math.sin(angle) * radius * (bounce < 0.15 ? 0 : bounce);
-          state.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
-          onBounce(i);
+          this.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
+          onBounce(i, this.config);
         }
         node.lastBounceDir = bounceDir;
       }
@@ -130,15 +169,15 @@ export class Renderer {
       const proximity = Math.abs(dist) / radius;
       frames.push({ x, y, dist, angle, proximity });
 
-      if (state.playing && Math.random() > 0.5) {
-        state.trails.push({ x, y, time: timestamp, color: node.color });
+      if (this.playing && Math.random() > 0.5) {
+        this.trails.push({ x, y, time: timestamp, color: node.color });
       }
     });
 
     // === Phase 2: Draw layers back-to-front ===
 
     // --- Track lines (subtle radial guides) ---
-    state.nodes.forEach((node, i) => {
+    this.nodes.forEach((node, i) => {
       const { angle } = frames[i];
       ctx.beginPath();
       if (edgeMode) {
@@ -188,7 +227,7 @@ export class Renderer {
     ctx.stroke();
 
     // --- Tick marks at edge for each node ---
-    state.nodes.forEach((node, i) => {
+    this.nodes.forEach((node, i) => {
       const { angle } = frames[i];
       const tx = center.x + Math.cos(angle) * radius;
       const ty = center.y + Math.sin(angle) * radius;
@@ -212,8 +251,8 @@ export class Renderer {
     ctx.fill();
 
     // --- Trails (soft radial-gradient dots) ---
-    const trailLife = Math.max(0.15, 1.2 / (state.config.speed / 20));
-    state.trails = state.trails.filter(t => {
+    const trailLife = Math.max(0.15, 1.2 / (this.config.speed / 20));
+    this.trails = this.trails.filter(t => {
       const age = (timestamp - t.time) / 1000;
       if (age > trailLife) return false;
       const alpha = (1 - age / trailLife);
@@ -229,7 +268,7 @@ export class Renderer {
     });
 
     // --- Ripples (single ring + glow in edge mode) ---
-    state.ripples = state.ripples.filter(r => {
+    this.ripples = this.ripples.filter(r => {
       const age = (timestamp - r.time) / 1000;
       if (age > 2.0) return false;
       const t = age / 2.0;
@@ -256,7 +295,7 @@ export class Renderer {
     });
 
     // --- Node glow layer ---
-    state.nodes.forEach((node, i) => {
+    this.nodes.forEach((node, i) => {
       const { x, y, proximity } = frames[i];
       const fade = proximity * proximity;
       const glowSize = 22 + proximity * 18;
@@ -271,7 +310,7 @@ export class Renderer {
     });
 
     // --- Lines from center to node ---
-    state.nodes.forEach((node, i) => {
+    this.nodes.forEach((node, i) => {
       const { x, y } = frames[i];
       ctx.beginPath();
       ctx.moveTo(center.x, center.y);
@@ -286,7 +325,7 @@ export class Renderer {
     });
 
     // --- Node circles ---
-    state.nodes.forEach((node, i) => {
+    this.nodes.forEach((node, i) => {
       const { x, y, proximity } = frames[i];
       const mobile = Math.min(W, H) < 600;
       const nodeSize = mobile ? 3.5 + proximity * 3 : 5 + proximity * 4;

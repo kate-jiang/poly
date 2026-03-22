@@ -1,4 +1,4 @@
-export type ScaleName = 'pentatonic' | 'major' | 'minor' | 'dorian' | 'mixolydian' | 'blues' | 'chromatic' | 'whole_tone';
+export type ScaleName = 'pentatonic' | 'ionian' | 'lydian' | 'blues' | 'chromatic' | 'whole_tone';
 export type BounceMode = 'center' | 'edge';
 export type NoteName = 'C' | 'C#' | 'D' | 'Eb' | 'E' | 'F' | 'F#' | 'G' | 'Ab' | 'A' | 'Bb' | 'B';
 
@@ -29,7 +29,6 @@ export interface AppConfig {
   speed: number;
   scale: ScaleName;
   root: NoteName;
-  octave: number;
   bounceMode: BounceMode;
 }
 
