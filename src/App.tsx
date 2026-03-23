@@ -33,8 +33,7 @@ export function App() {
     if (!playing) {
       try {
         if (!audioRef.current) audioRef.current = new AudioEngine();
-        audioRef.current.init();
-        await Tone.start();
+        await audioRef.current.init();
         audioRef.current.rebuild(config.nodeCount);
       } catch (e) {
         console.warn('Audio init failed:', e);

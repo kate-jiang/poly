@@ -8,13 +8,13 @@ export class AudioEngine {
   private ready = false;
   private static contextConfigured = false;
 
-  init(): void {
+  async init(): Promise<void> {
     if (this.ready) return;
     if (!AudioEngine.contextConfigured) {
-      const rawCtx = new AudioContext({ latencyHint: 'playback', sampleRate: 44100 });
-      Tone.setContext(new Tone.Context(rawCtx));
+      Tone.setContext(new Tone.Context());
       AudioEngine.contextConfigured = true;
     }
+    await Tone.start();
     this.limiter = new Tone.Limiter(-2).toDestination();
     this.reverb = new Tone.Reverb({ decay: 2.5, wet: 0.3 }).connect(this.limiter);
     this.compressor = new Tone.Compressor({
