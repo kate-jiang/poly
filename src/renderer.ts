@@ -29,6 +29,7 @@ interface NodeFrame {
   dist: number;
   angle: number;
   proximity: number;
+  displayColor: string;
 }
 
 export class Renderer {
@@ -151,11 +152,17 @@ export class Renderer {
       const phase = (elapsed / cycleDuration) * freq * Math.PI;
 
       let dist: number;
+      let displayColor: string;
       if (edgeMode) {
         const edgePhase = phase * 2;
         const t = ((edgePhase / Math.PI) % 2 + 2) % 2;
         const tri = 2 * Math.abs(t - 1) - 1;
         dist = tri * radius;
+
+        // Color based on effective angular position so rainbow stays coherent
+        const effectiveAngle = dist >= 0 ? angle : ((angle + Math.PI) % (Math.PI * 2));
+        const hue = ((effectiveAngle / (Math.PI * 2)) + 0.5 / n) * 360 % 360;
+        displayColor = `${hue}, 72%, 55%`;
 
         const sinVal2 = Math.sin(edgePhase);
         const bounceDir: 'up' | 'down' = sinVal2 >= 0 ? 'up' : 'down';
@@ -164,7 +171,7 @@ export class Renderer {
           const bx = center.x + Math.cos(angle) * edgeDist;
           const by = center.y + Math.sin(angle) * edgeDist;
           if (this.ripples.length < (this.mobile ? 30 : 100)) {
-            this.ripples.push({ x: bx, y: by, time: timestamp, color: node.color });
+            this.ripples.push({ x: bx, y: by, time: timestamp, color: displayColor });
           }
           onBounce(i, this.config);
         }
@@ -173,6 +180,7 @@ export class Renderer {
         const sinVal = Math.sin(phase);
         const bounce = Math.abs(sinVal);
         dist = bounce * radius;
+        displayColor = node.color;
 
         const bounceDir: 'up' | 'down' = sinVal >= 0 ? 'up' : 'down';
         if (this.playing && node.lastBounceDir && bounceDir !== node.lastBounceDir) {
@@ -189,10 +197,10 @@ export class Renderer {
       const x = center.x + Math.cos(angle) * dist;
       const y = center.y + Math.sin(angle) * dist;
       const proximity = Math.abs(dist) / radius;
-      frames.push({ x, y, dist, angle, proximity });
+      frames.push({ x, y, dist, angle, proximity, displayColor });
 
       if (!this.mobile && this.playing && this.frameCount % 2 === 0) {
-        this.trails.push({ x, y, time: timestamp, color: node.color });
+        this.trails.push({ x, y, time: timestamp, color: displayColor });
       }
     });
 
@@ -338,13 +346,13 @@ export class Renderer {
 
     // --- Node glow layer (skip on mobile — expensive radial gradients) ---
     if (!this.mobile) {
-      this.nodes.forEach((node, i) => {
+      this.nodes.forEach((_node, i) => {
         const { x, y, proximity } = frames[i];
         const fade = proximity * proximity;
         const glowSize = 22 + proximity * 18;
         const gg = ctx.createRadialGradient(x, y, 0, x, y, glowSize);
-        gg.addColorStop(0, hsla(node.color, 0.08 * fade));
-        gg.addColorStop(0.5, hsla(node.color, 0.03 * fade));
+        gg.addColorStop(0, hsla(frames[i].displayColor, 0.08 * fade));
+        gg.addColorStop(0.5, hsla(frames[i].displayColor, 0.03 * fade));
         gg.addColorStop(1, 'transparent');
         ctx.beginPath();
         ctx.arc(x, y, glowSize, 0, Math.PI * 2);
@@ -354,29 +362,29 @@ export class Renderer {
     }
 
     // --- Lines from center to node ---
-    this.nodes.forEach((node, i) => {
+    this.nodes.forEach((_node, i) => {
       const { x, y } = frames[i];
       ctx.beginPath();
       ctx.moveTo(center.x, center.y);
       ctx.lineTo(x, y);
       const lg = ctx.createLinearGradient(center.x, center.y, x, y);
       lg.addColorStop(0, 'rgba(255,255,255,0.02)');
-      lg.addColorStop(0.6, hsla(node.color, 0.12));
-      lg.addColorStop(1, hsla(node.color, 0.3));
+      lg.addColorStop(0.6, hsla(frames[i].displayColor, 0.12));
+      lg.addColorStop(1, hsla(frames[i].displayColor, 0.3));
       ctx.strokeStyle = lg;
       ctx.lineWidth = 1;
       ctx.stroke();
     });
 
     // --- Node circles ---
-    this.nodes.forEach((node, i) => {
+    this.nodes.forEach((_node, i) => {
       const { x, y, proximity } = frames[i];
       const nodeSize = this.mobile ? 3.5 + proximity * 3 : 5 + proximity * 4;
 
       // Outer ring
       ctx.beginPath();
       ctx.arc(x, y, nodeSize + 2, 0, Math.PI * 2);
-      ctx.strokeStyle = hsla(node.color, 0.2 + proximity * 0.15);
+      ctx.strokeStyle = hsla(frames[i].displayColor, 0.2 + proximity * 0.15);
       ctx.lineWidth = 0.5;
       ctx.stroke();
 
@@ -387,8 +395,8 @@ export class Renderer {
         x - nodeSize * 0.25, y - nodeSize * 0.25, 0,
         x, y, nodeSize
       );
-      nf.addColorStop(0, hsl(node.color));
-      nf.addColorStop(1, hsla(node.color, 0.85));
+      nf.addColorStop(0, hsl(frames[i].displayColor));
+      nf.addColorStop(1, hsla(frames[i].displayColor, 0.85));
       ctx.fillStyle = nf;
       ctx.fill();
     });
