@@ -159,15 +159,12 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
 
         <div className="control-divider desktop-only" />
 
-        <div className="control-group desktop-only">
-          <label>crazy style</label>
-          <button
-            className="random-btn"
-            onClick={() => onConfigChange(randomizeConfig())}
-          >
-            Randomize
-          </button>
-        </div>
+        <button
+          className="random-btn desktop-only"
+          onClick={() => onConfigChange(randomizeConfig())}
+        >
+          Randomize
+        </button>
 
         <button
           className={`sheet-toggle${sheetOpen ? ' open' : ''}`}

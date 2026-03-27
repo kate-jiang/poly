@@ -66,7 +66,12 @@ export function Dropdown<T extends string>({ value, options, onChange }: Dropdow
         type="button"
       >
         {selected?.icon}
-        <span>{selected?.label}</span>
+        <span className="dropdown-label">
+          <span>{selected?.label}</span>
+          <span className="dropdown-sizer" aria-hidden="true">
+            {options.map(o => <span key={o.value}>{o.label}</span>)}
+          </span>
+        </span>
       </button>
       {open && createPortal(
         <div className="dropdown-menu" ref={menuRef} style={menuPos}>

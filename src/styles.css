@@ -123,6 +123,21 @@ canvas {
   transform: translateY(-50%) rotate(180deg);
 }
 
+.dropdown-label {
+  display: grid;
+}
+
+.dropdown-label > * {
+  grid-area: 1 / 1;
+}
+
+.dropdown-sizer {
+  visibility: hidden;
+  height: 0;
+  display: flex;
+  flex-direction: column;
+}
+
 .dropdown-trigger:hover {
   border-color: var(--border-hover);
 }
@@ -220,9 +235,10 @@ input[type="range"]::-moz-range-thumb {
 .val {
   color: var(--accent);
   font-weight: 500;
-  min-width: 32px;
+  width: 4ch;
   text-align: right;
   font-size: 13px;
+  flex-shrink: 0;
 }
 
 .row {
@@ -273,6 +289,7 @@ input[type="range"]::-moz-range-thumb {
 /* ─── Randomize button ─── */
 
 .random-btn {
+  align-self: center;
   height: 32px;
   padding: 0 14px;
   border-radius: 6px;
