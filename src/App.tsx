@@ -14,6 +14,7 @@ const DEFAULT_CONFIG: AppConfig = {
   root: 'C',
   bounceMode: 'center',
   reverb: 40,
+  colorScheme: 'rainbow',
 };
 
 export function App() {

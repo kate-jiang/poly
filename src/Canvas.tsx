@@ -31,10 +31,10 @@ export function Canvas({ config, playing, onBounce }: CanvasProps) {
     rendererRef.current?.setPlaying(playing);
   }, [playing]);
 
-  // Rebuild nodes when count changes
+  // Rebuild nodes when count or color scheme changes
   useEffect(() => {
     rendererRef.current?.rebuildNodes(config.nodeCount);
-  }, [config.nodeCount]);
+  }, [config.nodeCount, config.colorScheme]);
 
   return <canvas ref={canvasRef} id="canvas" />;
 }

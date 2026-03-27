@@ -1,6 +1,7 @@
 export type ScaleName = 'pentatonic' | 'ionian' | 'lydian' | 'blues' | 'chromatic' | 'whole_tone';
 export type BounceMode = 'center' | 'edge';
 export type NoteName = 'C' | 'C#' | 'D' | 'Eb' | 'E' | 'F' | 'F#' | 'G' | 'Ab' | 'A' | 'Bb' | 'B';
+export type ColorSchemeName = 'rainbow' | 'ocean' | 'sunset' | 'forest' | 'neon' | 'mono';
 
 export interface PolyNode {
   index: number;
@@ -31,6 +32,7 @@ export interface AppConfig {
   root: NoteName;
   bounceMode: BounceMode;
   reverb: number;
+  colorScheme: ColorSchemeName;
 }
 
 export interface AppState {

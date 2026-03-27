@@ -12,9 +12,9 @@ export function LabelsPanel({ config }: LabelsPanelProps) {
     typeof window !== 'undefined' && window.matchMedia('(min-width: 768px)').matches
   );
 
-  const { nodeCount, scale, root } = config;
+  const { nodeCount, scale, root, colorScheme } = config;
   const octave = 4;
-  const colors = getNodeColors(nodeCount);
+  const colors = getNodeColors(nodeCount, colorScheme);
 
   const labels = [];
   for (let i = 0; i < nodeCount; i++) {

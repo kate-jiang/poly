@@ -1,5 +1,5 @@
 import type { AppConfig, PolyNode, Ripple, Trail } from './types';
-import { getNodeColors } from './utils';
+import { getNodeColors, getColorForPosition } from './utils';
 
 const TAU = Math.PI * 2;
 
@@ -98,7 +98,7 @@ export class Renderer {
   }
 
   rebuildNodes(count: number): void {
-    const colors = getNodeColors(count);
+    const colors = getNodeColors(count, this.config.colorScheme);
     this.nodes = [];
     for (let i = 0; i < count; i++) {
       this.nodes.push({
@@ -167,10 +167,10 @@ export class Renderer {
         const tri = 2 * Math.abs(t - 1) - 1;
         dist = tri * radius;
 
-        // Color based on effective angular position so rainbow stays coherent
+        // Color based on effective angular position so palette stays coherent
         const effectiveAngle = dist >= 0 ? angle : ((angle + Math.PI) % (TAU));
-        const hue = ((effectiveAngle / (TAU)) + 0.5 / n) * 360 % 360;
-        displayColor = `${hue}, 72%, 55%`;
+        const colorT = ((effectiveAngle / TAU) + 0.5 / n) % 1;
+        displayColor = getColorForPosition(colorT, this.config.colorScheme);
 
         const sinVal2 = Math.sin(edgePhase);
         const bounceDir: 'up' | 'down' = sinVal2 >= 0 ? 'up' : 'down';

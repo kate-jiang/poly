@@ -1,17 +1,46 @@
 import { useState } from 'react';
-import type { AppConfig, ScaleName, NoteName } from './types';
+import type { AppConfig, ScaleName, NoteName, ColorSchemeName } from './types';
+import { Dropdown, type DropdownOption } from './Dropdown';
+import { getColorForPosition } from './utils';
 
-const SCALES: ScaleName[] = ['pentatonic', 'ionian', 'lydian', 'blues', 'whole_tone', 'chromatic'];
-const ROOTS: NoteName[] = ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'];
+const SCALE_OPTIONS: DropdownOption<ScaleName>[] = [
+  { value: 'pentatonic', label: 'Pentatonic' },
+  { value: 'ionian', label: 'Ionian' },
+  { value: 'lydian', label: 'Lydian' },
+  { value: 'blues', label: 'Blues' },
+  { value: 'whole_tone', label: 'Whole Tone' },
+  { value: 'chromatic', label: 'Chromatic' },
+];
+
+const KEY_OPTIONS: DropdownOption<NoteName>[] = (
+  ['C', 'C#', 'D', 'Eb', 'E', 'F', 'F#', 'G', 'Ab', 'A', 'Bb', 'B'] as NoteName[]
+).map(k => ({ value: k, label: k }));
+
+function ColorSwatch({ scheme }: { scheme: ColorSchemeName }) {
+  const stops = [0.1, 0.3, 0.5, 0.7, 0.9].map(t => `hsl(${getColorForPosition(t, scheme)})`);
+  return <span className="color-swatch" style={{ background: `linear-gradient(to right, ${stops.join(', ')})` }} />;
+}
+
+const COLOR_SCHEME_NAMES: ColorSchemeName[] = ['rainbow', 'sunset', 'forest', 'ocean', 'neon', 'mono'];
+const COLOR_LABELS: Record<ColorSchemeName, string> = {
+  rainbow: 'Rainbow', ocean: 'Ocean', forest: 'Forest', sunset: 'Sunset',
+  neon: 'Neon', mono: 'Mono',
+};
+const COLOR_OPTIONS: DropdownOption<ColorSchemeName>[] = COLOR_SCHEME_NAMES.map(s => ({
+  value: s,
+  label: COLOR_LABELS[s],
+  icon: <ColorSwatch scheme={s} />,
+}));
 
 function randomizeConfig(): Partial<AppConfig> {
   return {
     nodeCount: Math.floor(Math.random() * 49) + 2,
     speed: Math.floor(Math.random() * 100) + 1,
     reverb: Math.floor(Math.random() * 101),
-    scale: SCALES[Math.floor(Math.random() * SCALES.length)],
-    root: ROOTS[Math.floor(Math.random() * ROOTS.length)],
+    scale: SCALE_OPTIONS[Math.floor(Math.random() * SCALE_OPTIONS.length)].value,
+    root: KEY_OPTIONS[Math.floor(Math.random() * KEY_OPTIONS.length)].value,
     bounceMode: Math.random() > 0.5 ? 'edge' : 'center',
+    colorScheme: COLOR_SCHEME_NAMES[Math.floor(Math.random() * COLOR_SCHEME_NAMES.length)],
   };
 }
 
@@ -97,42 +126,17 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
 
         <div className="control-group">
           <label>Scale</label>
-          <div className="select-wrap">
-            <select
-              value={config.scale}
-              onChange={e => onConfigChange({ scale: e.target.value as ScaleName })}
-            >
-              <option value="pentatonic">Pentatonic</option>
-              <option value="ionian">Ionian</option>
-              <option value="lydian">Lydian</option>
-              <option value="blues">Blues</option>
-              <option value="whole_tone">Whole Tone</option>
-              <option value="chromatic">Chromatic</option>
-            </select>
-          </div>
+          <Dropdown value={config.scale} options={SCALE_OPTIONS} onChange={v => onConfigChange({ scale: v })} />
         </div>
 
         <div className="control-group desktop-only">
           <label>Key</label>
-          <div className="select-wrap">
-            <select
-              value={config.root}
-              onChange={e => onConfigChange({ root: e.target.value as NoteName })}
-            >
-              <option value="C">C</option>
-              <option value="C#">C#</option>
-              <option value="D">D</option>
-              <option value="Eb">Eb</option>
-              <option value="E">E</option>
-              <option value="F">F</option>
-              <option value="F#">F#</option>
-              <option value="G">G</option>
-              <option value="Ab">Ab</option>
-              <option value="A">A</option>
-              <option value="Bb">Bb</option>
-              <option value="B">B</option>
-            </select>
-          </div>
+          <Dropdown value={config.root} options={KEY_OPTIONS} onChange={v => onConfigChange({ root: v })} />
+        </div>
+
+        <div className="control-group desktop-only">
+          <label>Color</label>
+          <Dropdown value={config.colorScheme} options={COLOR_OPTIONS} onChange={v => onConfigChange({ colorScheme: v })} />
         </div>
 
         <div className="control-divider desktop-only" />
@@ -189,42 +193,17 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
           <div className="sheet-row sheet-controls">
             <div className="control-group">
               <label>Scale</label>
-              <div className="select-wrap">
-                <select
-                  value={config.scale}
-                  onChange={e => onConfigChange({ scale: e.target.value as ScaleName })}
-                >
-                  <option value="pentatonic">Pentatonic</option>
-                  <option value="ionian">Ionian</option>
-                  <option value="lydian">Lydian</option>
-                  <option value="blues">Blues</option>
-                  <option value="whole_tone">Whole Tone</option>
-                  <option value="chromatic">Chromatic</option>
-                </select>
-              </div>
+              <Dropdown value={config.scale} options={SCALE_OPTIONS} onChange={v => onConfigChange({ scale: v })} />
             </div>
 
             <div className="control-group">
               <label>Key</label>
-              <div className="select-wrap">
-                <select
-                  value={config.root}
-                  onChange={e => onConfigChange({ root: e.target.value as NoteName })}
-                >
-                  <option value="C">C</option>
-                  <option value="C#">C#</option>
-                  <option value="D">D</option>
-                  <option value="Eb">Eb</option>
-                  <option value="E">E</option>
-                  <option value="F">F</option>
-                  <option value="F#">F#</option>
-                  <option value="G">G</option>
-                  <option value="Ab">Ab</option>
-                  <option value="A">A</option>
-                  <option value="Bb">Bb</option>
-                  <option value="B">B</option>
-                </select>
-              </div>
+              <Dropdown value={config.root} options={KEY_OPTIONS} onChange={v => onConfigChange({ root: v })} />
+            </div>
+
+            <div className="control-group">
+              <label>Color</label>
+              <Dropdown value={config.colorScheme} options={COLOR_OPTIONS} onChange={v => onConfigChange({ colorScheme: v })} />
             </div>
 
             <div className="control-group">
