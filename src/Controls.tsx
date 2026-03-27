@@ -206,21 +206,6 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
               <Dropdown value={config.colorScheme} options={COLOR_OPTIONS} onChange={v => onConfigChange({ colorScheme: v })} />
             </div>
 
-            <div className="control-group">
-              <label>Start Position</label>
-              <div className="row">
-                <span className="switch-label">Center</span>
-                <label className="switch">
-                  <input
-                    type="checkbox"
-                    checked={config.bounceMode === 'edge'}
-                    onChange={e => onConfigChange({ bounceMode: e.target.checked ? 'edge' : 'center' })}
-                  />
-                  <span className="switch-slider" />
-                </label>
-                <span className="switch-label">Edge</span>
-              </div>
-            </div>
           </div>
 
           <div className="control-group">
@@ -271,7 +256,19 @@ export function Controls({ config, playing, onConfigChange, onPlay }: ControlsPr
             </div>
           </div>
 
-          <div className="sheet-row">
+          <div className="sheet-row sheet-bottom-row">
+            <div className="row">
+              <span className="switch-label">Center</span>
+              <label className="switch">
+                <input
+                  type="checkbox"
+                  checked={config.bounceMode === 'edge'}
+                  onChange={e => onConfigChange({ bounceMode: e.target.checked ? 'edge' : 'center' })}
+                />
+                <span className="switch-slider" />
+              </label>
+              <span className="switch-label">Edge</span>
+            </div>
             <button
               className="random-btn sheet-random"
               onClick={() => onConfigChange(randomizeConfig())}
