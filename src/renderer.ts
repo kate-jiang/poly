@@ -141,7 +141,8 @@ export class Renderer {
 
     // Time
     const edgeMode = this.config.bounceMode === 'edge';
-    const cycleDuration = (edgeMode ? 3200 : 1600) / (this.config.speed + 10);
+    const maxBeats = n + 1;
+    const cycleDuration = maxBeats * (edgeMode ? 60 : 30) / (this.config.speed + 10);
     let elapsed = 0;
     if (this.playing) {
       elapsed = (timestamp - this.startTime) / 1000;

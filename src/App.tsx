@@ -9,7 +9,7 @@ import { LabelsPanel } from './LabelsPanel';
 
 const DEFAULT_CONFIG: AppConfig = {
   nodeCount: 30,
-  speed: 40,
+  speed: 25,
   scale: 'pentatonic',
   root: 'C',
   bounceMode: 'center',
