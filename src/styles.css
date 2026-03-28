@@ -129,6 +129,7 @@ canvas {
 
 .dropdown-label > * {
   grid-area: 1 / 1;
+  text-align: left;
 }
 
 .dropdown-sizer {
