@@ -10,6 +10,10 @@ export class AudioEngine {
 
   async init(): Promise<void> {
     if (this.ready) return;
+    // iOS mutes Web Audio under the silent switch unless the session type is 'playback'.
+    if ('audioSession' in navigator) {
+      (navigator as Navigator & { audioSession: { type: string } }).audioSession.type = 'playback';
+    }
     if (!AudioEngine.contextConfigured) {
       Tone.setContext(new Tone.Context());
       AudioEngine.contextConfigured = true;
